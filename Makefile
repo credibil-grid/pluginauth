@@ -1,8 +1,7 @@
-.PHONY: lint test vendor clean
 
 default: lint test
 
-.PHONY: lint 
+.PHONY: lint
 lint:
 	golangci-lint run
 
@@ -14,8 +13,10 @@ test:
 yaegi:
 	yaegi test -v .
 
+.PHONY: vendor
 vendor:
 	go mod vendor
-
+	
+.PHONY: clean
 clean:
 	rm -rf ./vendor
