@@ -51,7 +51,7 @@ func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// call Ory whoami API
 	url := fmt.Sprintf("%s/sessions/whoami", a.host)
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		os.Stderr.WriteString(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -59,8 +59,10 @@ func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	req.Header.Set("X-Session-Token", token)
 	req.Header.Set("Cookie", r.Header.Get("Cookie"))
+	req.Header.Set("Cache-Control", "max-age=60")
 
 	start := time.Now()
+
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		os.Stderr.WriteString(err.Error())
