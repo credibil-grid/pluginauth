@@ -5,8 +5,9 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"os"
-	"text/template"
+	"strings"
+
+	"github.com/ory/client-go"
 )
 
 // Config the plugin configuration.
@@ -25,48 +26,56 @@ func CreateConfig() *Config {
 
 // Auth a Auth plugin.
 type Auth struct {
-	next       http.Handler
 	reqHeaders []string
 	rspHeaders map[string]string
+	ory        *client.APIClient
+	next       http.Handler
 	name       string
-	template   *template.Template
 }
 
 // New created a new Auth plugin.
 func New(ctx context.Context, next http.Handler, config *Config, name string) (http.Handler, error) {
+
 	if len(config.RequestHeaders) == 0 {
 		return nil, fmt.Errorf("headers cannot be empty")
 	}
 
+	conf := client.NewConfiguration()
+	conf.Servers = client.ServerConfigurations{{URL: config.Address}}
+
 	return &Auth{
 		reqHeaders: config.RequestHeaders,
 		rspHeaders: config.ResponseHeaders,
+		ory:        client.NewAPIClient(conf),
 		next:       next,
 		name:       name,
-		template:   template.New("demo").Delims("[[", "]]"),
 	}, nil
 }
 
-func (a *Auth) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	os.Stderr.WriteString(fmt.Sprintf("%v", a.rspHeaders))
+func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// os.Stderr.WriteString(fmt.Sprintf("%v", a.rspHeaders))
 
-	// for key, value := range a.headers {
-	// 	tmpl, err := a.template.Parse(value)
-	// 	if err != nil {
-	// 		http.Error(rw, err.Error(), http.StatusInternalServerError)
-	// 		return
-	// 	}
+	// get session token/cookie
+	token := ""
+	if h := r.Header.Get("Authorization"); strings.HasPrefix(strings.ToLower(h), "bearer ") {
+		token = h[7:]
+	}
+	cookies := r.Header.Values("Cookie")
 
-	// 	writer := &bytes.Buffer{}
+	// call Ory API
+	session, _, err := a.ory.FrontendApi.ToSession(context.Background()).
+		XSessionToken(token).
+		Cookie(strings.Join(cookies, "; ")).
+		Execute()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-	// 	err = tmpl.Execute(writer, req)
-	// 	if err != nil {
-	// 		http.Error(rw, err.Error(), http.StatusInternalServerError)
-	// 		return
-	// 	}
+	// set response headers
+	r.Header.Set(a.rspHeaders["User"], session.Identity.Id)
+	r.Header.Set(a.rspHeaders["Tenant"], session.Identity.MetadataPublic["tenantId"].(string))
+	r.Header.Set(a.rspHeaders["Permissions"], session.Identity.MetadataPublic["permissions"].(string))
 
-	// 	req.Header.Set(key, writer.String())
-	// }
-
-	a.next.ServeHTTP(rw, req)
+	a.next.ServeHTTP(w, r)
 }
