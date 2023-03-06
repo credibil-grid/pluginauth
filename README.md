@@ -1,12 +1,6 @@
-This repository includes an example plugin, `demo`, for you to use as a reference for developing your own plugins.
+[![Build Status](https://github.com/credibil/pluginauth/workflows/Release/badge.svg?branch=main)](https://github.com/credibil/pluginauth/actions)
 
-[![Build Status](https://github.com/traefik/plugindemo/workflows/Main/badge.svg?branch=master)](https://github.com/traefik/plugindemo/actions)
-
-The existing plugins can be browsed into the [Plugin Catalog](https://plugins.traefik.io).
-
-# Developing a Traefik plugin
-
-[Traefik](https://traefik.io) plugins are developed using the [Go language](https://golang.org).
+# Traefik Ory auth plugin
 
 A [Traefik](https://traefik.io) middleware plugin is just a [Go package](https://golang.org/ref/spec#Packages) that provides an `http.Handler` to perform specific processing of requests and responses.
 
