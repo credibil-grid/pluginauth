@@ -30,7 +30,6 @@ func TestAuth(t *testing.T) {
 		if _, err := w.Write([]byte(rsp)); err != nil {
 			t.Fatal(err)
 		}
-		w.WriteHeader(http.StatusOK)
 	}))
 
 	cfg := CreateConfig()
