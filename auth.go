@@ -3,15 +3,15 @@ package pluginauth
 import (
 	// "bytes"
 	"context"
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
-
-	"github.com/ory/client-go"
 )
 
 // Config the plugin configuration.
 type Config struct {
-	Address string            `json:"address,omitempty"`
+	Host    string            `json:"host,omitempty"`
 	Headers map[string]string `json:"headers,omitempty"`
 }
 
@@ -24,22 +24,21 @@ func CreateConfig() *Config {
 
 // Auth a Auth plugin.
 type Auth struct {
+	host    string
 	headers map[string]string
 	// ory     *client.APIClient
 	next http.Handler
 	name string
 }
 
-var ory *client.APIClient
-
 // New created a new Auth plugin.
 func New(ctx context.Context, next http.Handler, config *Config, name string) (http.Handler, error) {
 
-	conf := client.NewConfiguration()
-	conf.Servers = client.ServerConfigurations{{URL: config.Address}}
-	ory = client.NewAPIClient(conf)
+	// conf := client.NewConfiguration()
+	// conf.Servers = client.ServerConfigurations{{URL: config.Address}}
 
 	return &Auth{
+		host:    config.Host,
 		headers: config.Headers,
 		// ory:     client.NewAPIClient(conf),
 		next: next,
@@ -57,14 +56,48 @@ func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	cookies := r.Header.Values("Cookie")
 
 	// call Ory API
-	session, _, err := ory.FrontendApi.ToSession(context.Background()).
-		XSessionToken(token).
-		Cookie(strings.Join(cookies, "; ")).
-		Execute()
+	url := fmt.Sprintf("https://%s/sessions/whoami", a.host)
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	req.Header.Set("X-Session-Token", token)
+	req.Header.Set("Cookie", strings.Join(cookies, "; "))
+
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	var session struct {
+		Identity struct {
+			Id             string                 `json:"id"`
+			Active         bool                   `json:"active"`
+			MetadataPublic map[string]interface{} `json:"metadata"`
+		} `json:"identity"`
+	}
+
+	if err := json.NewDecoder(res.Body).Decode(&session); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// session, _, err := a.ory.FrontendApi.ToSession(context.Background()).
+	// 	XSessionToken(token).
+	// 	Cookie(strings.Join(cookies, "; ")).
+	// 	Execute()
+	// if err != nil {
+	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
+	// 	return
+	// }
 
 	// set response headers
 	r.Header.Set(a.headers["User"], session.Identity.Id)

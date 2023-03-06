@@ -6,10 +6,12 @@ default: lint test
 lint:
 	golangci-lint run
 
+.PHONY: test
 test:
 	go test -v -cover ./...
 
-yaegi_test:
+.PHONY: yaegi 
+yaegi:
 	yaegi test -v .
 
 vendor:
