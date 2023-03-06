@@ -9,7 +9,8 @@ on:
 jobs:
 
   main:
-    name: Main Process
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     env:
       GO_VERSION: 1.20
