@@ -20,23 +20,10 @@ jobs:
         working-directory: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}
 
     steps:
-      - name: Set up Go ${{ env.GO_VERSION }}
-        uses: actions/setup-go@v2
-        with:
-          go-version: ${{ env.GO_VERSION }}
-
       - name: Check out code
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-
-      # - name: Cache Go modules
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: ${{ github.workspace }}/go/pkg/mod
-      #     key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-go-
 
       - name: Install Go
         uses: actions/setup-go@v3
