@@ -13,7 +13,7 @@ func TestAuth(t *testing.T) {
 	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
 
 	// Ory session/whoami api
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	oryAPI := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		rsp := `{
 			"identity": {
 				"id": "9f425a8d-7efc-4768-8f23-7647a74fdf13",
@@ -34,7 +34,7 @@ func TestAuth(t *testing.T) {
 	}))
 
 	cfg := CreateConfig()
-	cfg.Host = srv.URL
+	cfg.Host = oryAPI.URL
 	cfg.Headers = map[string]string{
 		"User":        "TiccTech-User",
 		"Tenant":      "TiccTech-Tenant",

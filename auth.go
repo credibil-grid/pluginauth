@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 )
 
 // Config holds the plugin configuration.
@@ -59,13 +60,16 @@ func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	req.Header.Set("X-Session-Token", token)
 	req.Header.Set("Cookie", r.Header.Get("Cookie"))
 
+	start := time.Now()
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		os.Stderr.WriteString(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	defer res.Body.Close()
+
+	end := time.Now().Sub(start).Milliseconds()
+	os.Stderr.WriteString(fmt.Sprintf("latency: %dms", end))
 
 	if res.StatusCode != http.StatusOK {
 		os.Stderr.WriteString("status code: " + res.Status)
@@ -84,6 +88,7 @@ func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		} `json:"identity"`
 	}
 
+	defer res.Body.Close()
 	if err := json.NewDecoder(res.Body).Decode(&session); err != nil {
 		os.Stderr.WriteString(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
