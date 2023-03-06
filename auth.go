@@ -1,7 +1,6 @@
 package pluginauth
 
 import (
-	// "bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -9,7 +8,7 @@ import (
 	"strings"
 )
 
-// Config the plugin configuration.
+// Config holds the plugin configuration.
 type Config struct {
 	Host    string            `json:"host,omitempty"`
 	Headers map[string]string `json:"headers,omitempty"`
@@ -26,23 +25,17 @@ func CreateConfig() *Config {
 type Auth struct {
 	host    string
 	headers map[string]string
-	// ory     *client.APIClient
-	next http.Handler
-	name string
+	next    http.Handler
+	name    string
 }
 
 // New created a new Auth plugin.
 func New(ctx context.Context, next http.Handler, config *Config, name string) (http.Handler, error) {
-
-	// conf := client.NewConfiguration()
-	// conf.Servers = client.ServerConfigurations{{URL: config.Address}}
-
 	return &Auth{
 		host:    config.Host,
 		headers: config.Headers,
-		// ory:     client.NewAPIClient(conf),
-		next: next,
-		name: name,
+		next:    next,
+		name:    name,
 	}, nil
 }
 
@@ -55,7 +48,7 @@ func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	cookies := r.Header.Values("Cookie")
 
-	// call Ory API
+	// call Ory whoami API
 	url := fmt.Sprintf("https://%s/sessions/whoami", a.host)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -89,15 +82,6 @@ func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	// session, _, err := a.ory.FrontendApi.ToSession(context.Background()).
-	// 	XSessionToken(token).
-	// 	Cookie(strings.Join(cookies, "; ")).
-	// 	Execute()
-	// if err != nil {
-	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
-	// 	return
-	// }
 
 	// set response headers
 	r.Header.Set(a.headers["User"], session.Identity.Id)
