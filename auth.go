@@ -68,7 +68,7 @@ func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	end := time.Now().Sub(start).Milliseconds()
+	end := time.Since(start).Milliseconds()
 	os.Stderr.WriteString(fmt.Sprintf("latency: %dms", end))
 
 	if res.StatusCode != http.StatusOK {
