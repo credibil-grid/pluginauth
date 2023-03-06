@@ -1,4 +1,4 @@
-name: Main
+name: Build
 
 on:
   push:
@@ -7,13 +7,11 @@ on:
   pull_request:
 
 jobs:
-  main:
+  build:
     permissions:
       contents: write
     runs-on: ubuntu-latest
     
-    # env:
-    # YAEGI_VERSION: v0.14.2
     # defaults:
     #   run:
     #     working-directory: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}
