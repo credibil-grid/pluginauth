@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 )
 
@@ -51,6 +52,7 @@ func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	url := fmt.Sprintf("%s/sessions/whoami", a.host)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
+		os.Stderr.WriteString(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -59,12 +61,14 @@ func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
+		os.Stderr.WriteString(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
+		os.Stderr.WriteString("status code: " + res.Status)
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
@@ -81,6 +85,7 @@ func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewDecoder(res.Body).Decode(&session); err != nil {
+		os.Stderr.WriteString(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
