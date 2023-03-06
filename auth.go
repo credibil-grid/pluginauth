@@ -76,7 +76,7 @@ func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			MetadataPublic struct {
 				TenantId    string `json:"tenantId"`
 				Permissions string `json:"permissions"`
-			} `json:"metadata"`
+			} `json:"metadata_public"`
 		} `json:"identity"`
 	}
 
