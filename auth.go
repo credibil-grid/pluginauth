@@ -43,12 +43,6 @@ func New(ctx context.Context, next http.Handler, config *Config, name string) (h
 
 func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	// get session token/cookie
-	token := ""
-	if h := r.Header.Get("Authorization"); strings.HasPrefix(strings.ToLower(h), "bearer ") {
-		token = h[7:]
-	}
-
 	// call Ory whoami API
 	url := fmt.Sprintf("%s/sessions/whoami", a.host)
 	req, err := http.NewRequest(http.MethodGet, url, nil)
@@ -57,9 +51,14 @@ func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	req.Header.Set("X-Session-Token", token)
-	// req.Header.Set("Cookie", r.Header.Get("Cookie"))
-	req.Header.Set("Cache-Control", "max-age=60")
+
+	// token or cookie?
+	if auth := r.Header.Get("Authorization"); strings.HasPrefix(strings.ToLower(auth), "bearer ") {
+		req.Header.Set("X-Session-Token", auth[7:])
+	} else {
+		req.Header.Set("Cookie", r.Header.Get("Cookie"))
+	}
+	// req.Header.Set("Cache-Control", "max-age=60")
 
 	start := time.Now()
 
@@ -70,6 +69,7 @@ func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// debug latency
 	end := time.Since(start).Milliseconds()
 	os.Stderr.WriteString(fmt.Sprintf("latency: %dms ", end))
 
