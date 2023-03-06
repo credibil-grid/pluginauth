@@ -11,7 +11,7 @@ jobs:
     permissions:
       contents: write
     runs-on: ubuntu-latest
-    
+
     # defaults:
     #   run:
     #     working-directory: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}
@@ -37,6 +37,39 @@ jobs:
         uses: golangci/golangci-lint-action@v3
         with:
           version: latest
+
+      # increment release
+      - name: Latest release
+        id: prev-tag
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const resp = await github.rest.repos.getLatestRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            })
+            return resp.data.tag_name
+          result-encoding: string
+
+      # increment repo version tag
+      - run: npm install semver json-diff
+      - name: Increment version
+        id: release
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const semver = require('semver')
+
+            const latest = await github.rest.repos.getLatestRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            })
+
+            github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: `v${semver.inc(latest.data.tag_name, 'patch')}`
+            })
 
       # - name: Install Yaegi ${{ env.YAEGI_VERSION }}
       #   run: curl -sfL https://raw.githubusercontent.com/traefik/yaegi/master/install.sh | bash -s -- -b $(go env GOPATH)/bin ${YAEGI_VERSION}
