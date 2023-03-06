@@ -5,7 +5,7 @@ summary: "Check request has Ory session"
 # iconPath: .assets/icon.png
 # bannerPath: foo/banner.png
 testData:
-  host: "auth.staging.amlify.com"
+  host: "https://auth.staging.amlify.com"
   headers:
     User: "TiccTech-User"
     Tenant: "TiccTech-Tenant"

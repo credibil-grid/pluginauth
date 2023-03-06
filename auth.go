@@ -49,7 +49,7 @@ func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	cookies := r.Header.Values("Cookie")
 
 	// call Ory whoami API
-	url := fmt.Sprintf("https://%s/sessions/whoami", a.host)
+	url := fmt.Sprintf("%s/sessions/whoami", a.host)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
