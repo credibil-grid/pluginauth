@@ -1,0 +1,15 @@
+displayName: Ory Auth Plugin
+type: middleware
+import: github.com/credibil/pluginauth
+summary: "Check request has Ory session"
+# iconPath: .assets/icon.png
+# bannerPath: foo/banner.png
+testData:
+  address: "https://auth.staging.amlify.com/sessions/whoami"
+  requestHeaders:
+    - "Cookie"
+    - "Authorization"
+  responseHeaders:
+    User: "TiccTech-User"
+    Tenant: "TiccTech-Tenant"
+    Permissions: "Permissions"
