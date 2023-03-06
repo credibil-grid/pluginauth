@@ -1,9 +1,16 @@
+# The name displayed in the Plugins Catalog web UI.
 displayName: Ory Auth Plugin
 type: middleware
+
+# Plugin import path.
 import: github.com/credibil/pluginauth
 summary: "Check request has Ory session"
 # iconPath: .assets/icon.png
 # bannerPath: foo/banner.png
+
+# Mandatory configuration data for plugin startup tests.
+# The Plugins Catalog will try to execute the plugin with the data you provide
+# as part of its startup validity tests.
 testData:
   host: "https://auth.staging.amlify.com"
   headers:
