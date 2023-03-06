@@ -2,6 +2,7 @@
 
 default: lint test
 
+.PHONY: lint 
 lint:
 	golangci-lint run
 

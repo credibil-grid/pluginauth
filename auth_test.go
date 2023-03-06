@@ -34,10 +34,9 @@ func TestDemo(t *testing.T) {
 	// assertHeader(t, req, "X-Demo", "test")
 }
 
-func assertHeader(t *testing.T, req *http.Request, key, expected string) {
-	t.Helper()
-
-	if req.Header.Get(key) != expected {
-		t.Errorf("invalid header value: %s", req.Header.Get(key))
-	}
-}
+// func assertHeader(t *testing.T, req *http.Request, key, expected string) {
+// 	t.Helper()
+// 	if req.Header.Get(key) != expected {
+// 		t.Errorf("invalid header value: %s", req.Header.Get(key))
+// 	}
+// }
