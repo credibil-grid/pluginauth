@@ -46,7 +46,7 @@ func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if h := r.Header.Get("Authorization"); strings.HasPrefix(strings.ToLower(h), "bearer ") {
 		token = h[7:]
 	}
-	cookies := r.Header.Values("Cookie")
+	// cookies := r.Header.Values("Cookie")
 
 	// call Ory whoami API
 	url := fmt.Sprintf("%s/sessions/whoami", a.host)
@@ -56,7 +56,8 @@ func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	req.Header.Set("X-Session-Token", token)
-	req.Header.Set("Cookie", strings.Join(cookies, "; "))
+	req.Header.Set("Cookie", r.Header.Get("Cookie"))
+	// req.Header.Set("Cookie", strings.Join(cookies, "; "))
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
