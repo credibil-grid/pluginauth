@@ -12,7 +12,7 @@ func TestAuth(t *testing.T) {
 	ctx := context.Background()
 	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
 
-	// Ory session/whoami API
+	// Ory session/whoami api
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		rsp := `{
 			"identity": {
@@ -27,7 +27,9 @@ func TestAuth(t *testing.T) {
 			}
 		}`
 		w.Header().Set("Content-Type", "application/json")
-		w.Write([]byte(rsp))
+		if _, err := w.Write([]byte(rsp)); err != nil {
+			t.Fatal(err)
+		}
 		w.WriteHeader(http.StatusOK)
 	}))
 
