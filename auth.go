@@ -13,7 +13,7 @@ import (
 type Config struct {
 	Address         string            `json:"address,omitempty"`
 	RequestHeaders  []string          `json:"requestHeaders,omitempty"`
-	ResponseHeaders map[string]string `json:"responseHeaders,omitempty`
+	ResponseHeaders map[string]string `json:"responseHeaders,omitempty"`
 }
 
 // CreateConfig creates the default plugin configuration.
@@ -48,7 +48,7 @@ func New(ctx context.Context, next http.Handler, config *Config, name string) (h
 }
 
 func (a *Auth) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	os.Stderr.WriteString(fmt.Sprintf("v", a.rspHeaders))
+	os.Stderr.WriteString(fmt.Sprintf("%v", a.rspHeaders))
 
 	// for key, value := range a.headers {
 	// 	tmpl, err := a.template.Parse(value)
