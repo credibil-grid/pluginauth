@@ -70,7 +70,8 @@ func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	os.Stderr.WriteString(fmt.Sprintf("latency: %dms ", time.Since(start).Milliseconds()))
+	end := time.Since(start).Milliseconds()
+	os.Stderr.WriteString(fmt.Sprintf("latency: %dms ", end))
 
 	if res.StatusCode != http.StatusOK {
 		os.Stderr.WriteString("status code: " + res.Status)
