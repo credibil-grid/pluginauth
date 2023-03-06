@@ -46,7 +46,6 @@ func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if h := r.Header.Get("Authorization"); strings.HasPrefix(strings.ToLower(h), "bearer ") {
 		token = h[7:]
 	}
-	// cookies := r.Header.Values("Cookie")
 
 	// call Ory whoami API
 	url := fmt.Sprintf("%s/sessions/whoami", a.host)
@@ -57,7 +56,6 @@ func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	req.Header.Set("X-Session-Token", token)
 	req.Header.Set("Cookie", r.Header.Get("Cookie"))
-	// req.Header.Set("Cookie", strings.Join(cookies, "; "))
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -73,9 +71,12 @@ func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	var session struct {
 		Identity struct {
-			Id             string                 `json:"id"`
-			Active         bool                   `json:"active"`
-			MetadataPublic map[string]interface{} `json:"metadata"`
+			Id             string `json:"id"`
+			Active         bool   `json:"active"`
+			MetadataPublic struct {
+				TenantId    string `json:"tenantId"`
+				Permissions string `json:"permissions"`
+			} `json:"metadata"`
 		} `json:"identity"`
 	}
 
@@ -86,8 +87,8 @@ func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// set response headers
 	r.Header.Set(a.headers["User"], session.Identity.Id)
-	r.Header.Set(a.headers["Tenant"], session.Identity.MetadataPublic["tenantId"].(string))
-	r.Header.Set(a.headers["Permissions"], session.Identity.MetadataPublic["permissions"].(string))
+	r.Header.Set(a.headers["Tenant"], session.Identity.MetadataPublic.TenantId)
+	r.Header.Set(a.headers["Permissions"], session.Identity.MetadataPublic.Permissions)
 
 	a.next.ServeHTTP(w, r)
 }
