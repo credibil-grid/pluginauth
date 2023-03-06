@@ -9,7 +9,6 @@ import (
 
 func TestDemo(t *testing.T) {
 	cfg := CreateConfig()
-	cfg.RequestHeaders = append(cfg.RequestHeaders, "[[.Host]]")
 
 	ctx := context.Background()
 	next := http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {})

@@ -11,15 +11,14 @@ import (
 
 // Config the plugin configuration.
 type Config struct {
-	Address         string            `json:"address,omitempty"`
-	RequestHeaders  []string          `json:"requestHeaders,omitempty"`
-	ResponseHeaders map[string]string `json:"responseHeaders,omitempty"`
+	Address string            `json:"address,omitempty"`
+	Headers map[string]string `json:"headers,omitempty"`
 }
 
 // CreateConfig creates the default plugin configuration.
 func CreateConfig() *Config {
 	return &Config{
-		ResponseHeaders: make(map[string]string),
+		Headers: make(map[string]string),
 	}
 }
 
@@ -38,7 +37,7 @@ func New(ctx context.Context, next http.Handler, config *Config, name string) (h
 	conf.Servers = client.ServerConfigurations{{URL: config.Address}}
 
 	return &Auth{
-		headers: config.ResponseHeaders,
+		headers: config.Headers,
 		ory:     client.NewAPIClient(conf),
 		next:    next,
 		name:    name,
