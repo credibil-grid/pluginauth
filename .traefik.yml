@@ -6,10 +6,7 @@ summary: "Check request has Ory session"
 # bannerPath: foo/banner.png
 testData:
   address: "https://auth.staging.amlify.com/sessions/whoami"
-  requestHeaders:
-    - "Cookie"
-    - "Authorization"
-  responseHeaders:
+  headers:
     User: "TiccTech-User"
     Tenant: "TiccTech-Tenant"
     Permissions: "Permissions"

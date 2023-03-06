@@ -3,7 +3,6 @@ package pluginauth
 import (
 	// "bytes"
 	"context"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -26,34 +25,27 @@ func CreateConfig() *Config {
 
 // Auth a Auth plugin.
 type Auth struct {
-	reqHeaders []string
-	rspHeaders map[string]string
-	ory        *client.APIClient
-	next       http.Handler
-	name       string
+	headers map[string]string
+	ory     *client.APIClient
+	next    http.Handler
+	name    string
 }
 
 // New created a new Auth plugin.
 func New(ctx context.Context, next http.Handler, config *Config, name string) (http.Handler, error) {
 
-	if len(config.RequestHeaders) == 0 {
-		return nil, fmt.Errorf("headers cannot be empty")
-	}
-
 	conf := client.NewConfiguration()
 	conf.Servers = client.ServerConfigurations{{URL: config.Address}}
 
 	return &Auth{
-		reqHeaders: config.RequestHeaders,
-		rspHeaders: config.ResponseHeaders,
-		ory:        client.NewAPIClient(conf),
-		next:       next,
-		name:       name,
+		headers: config.ResponseHeaders,
+		ory:     client.NewAPIClient(conf),
+		next:    next,
+		name:    name,
 	}, nil
 }
 
 func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// os.Stderr.WriteString(fmt.Sprintf("%v", a.rspHeaders))
 
 	// get session token/cookie
 	token := ""
@@ -73,9 +65,9 @@ func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// set response headers
-	r.Header.Set(a.rspHeaders["User"], session.Identity.Id)
-	r.Header.Set(a.rspHeaders["Tenant"], session.Identity.MetadataPublic["tenantId"].(string))
-	r.Header.Set(a.rspHeaders["Permissions"], session.Identity.MetadataPublic["permissions"].(string))
+	r.Header.Set(a.headers["User"], session.Identity.Id)
+	r.Header.Set(a.headers["Tenant"], session.Identity.MetadataPublic["tenantId"].(string))
+	r.Header.Set(a.headers["Permissions"], session.Identity.MetadataPublic["permissions"].(string))
 
 	a.next.ServeHTTP(w, r)
 }
