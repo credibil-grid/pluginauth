@@ -58,7 +58,7 @@ func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	req.Header.Set("X-Session-Token", token)
-	req.Header.Set("Cookie", r.Header.Get("Cookie"))
+	// req.Header.Set("Cookie", r.Header.Get("Cookie"))
 	req.Header.Set("Cache-Control", "max-age=60")
 
 	start := time.Now()
@@ -70,8 +70,7 @@ func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	end := time.Since(start).Milliseconds()
-	os.Stderr.WriteString(fmt.Sprintf("latency: %dms", end))
+	os.Stderr.WriteString(fmt.Sprintf("latency: %dms ", time.Since(start).Milliseconds()))
 
 	if res.StatusCode != http.StatusOK {
 		os.Stderr.WriteString("status code: " + res.Status)
