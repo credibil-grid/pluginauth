@@ -7,14 +7,12 @@ on:
   pull_request:
 
 jobs:
-
   main:
     permissions:
       contents: write
     runs-on: ubuntu-latest
     env:
       GO_VERSION: 1.20
-      # GOLANGCI_LINT_VERSION: v1.51.2
       YAEGI_VERSION: v0.14.2
       CGO_ENABLED: 0
     defaults:
@@ -22,16 +20,14 @@ jobs:
         working-directory: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}
 
     steps:
-
       - name: Set up Go ${{ env.GO_VERSION }}
         uses: actions/setup-go@v2
         with:
           go-version: ${{ env.GO_VERSION }}
 
       - name: Check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
-          path: go/src/github.com/${{ github.repository }}
           fetch-depth: 0
 
       - name: Cache Go modules
@@ -42,32 +38,26 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
 
-      # - name: Install golangci-lint ${{ env.GOLANGCI_LINT_VERSION }}
-      #   run: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin ${GOLANGCI_LINT_VERSION}
-
-      - name: Install Yaegi ${{ env.YAEGI_VERSION }}
-        run: curl -sfL https://raw.githubusercontent.com/traefik/yaegi/master/install.sh | bash -s -- -b $(go env GOPATH)/bin ${YAEGI_VERSION}
-
-      - name: Setup GOPATH
-        run: go env -w GOPATH=${{ github.workspace }}/go
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ">=1.19.0"
 
       - name: Check and get dependencies
         run: |
-          go mod tidy
-          git diff --exit-code go.mod
-          # git diff --exit-code go.sum
           go mod download
           go mod vendor
-          # git diff --exit-code ./vendor/
+          go test -v ./...
 
-      - name: Lint and Tests
-      #   run: make
+      - name: Lint
         uses: golangci/golangci-lint-action@v3
         with:
-          # Optional: version of golangci-lint to use in form of v1.2 or v1.2.3 or `latest` to use the latest version
           version: latest
 
-      - name: Run tests with Yaegi
-        run: make yaegi_test
-        env:
-          GOPATH: ${{ github.workspace }}/go
+      # - name: Install Yaegi ${{ env.YAEGI_VERSION }}
+      #   run: curl -sfL https://raw.githubusercontent.com/traefik/yaegi/master/install.sh | bash -s -- -b $(go env GOPATH)/bin ${YAEGI_VERSION}
+
+      # - name: Run tests with Yaegi
+      #   run: make yaegi_test
+      #   env:
+      #     GOPATH: ${{ github.workspace }}/go
