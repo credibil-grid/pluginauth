@@ -65,6 +65,21 @@ Traefik does not support Go modules](https://blog.golang.org/using-go-modules) s
 
 Currently, Traefik only supports logging using `os.Stdout.WriteString("...")` or `os.Stderr.WriteString("...")`.
 
+### Local Debugging
+
+To test the plugin locally, it must be defined as a local plugin in the Traefik static configuration.
+
+```yaml
+# Static configuration
+
+experimental:
+  localPlugins:
+    oryauth:
+      modulename: github.com/credibil/pluginauth
+```
+
+Traefik will then look for the plugin in the directory (relative to the the Traefik runtime)  `plugins-local/src/github.com/credibil/pluginauth`.
+
 ### Repository Topic
 
 In addition to containing a manifest, the Plugins Catalog requires a repository to have a topic set named `traefik-plugin`.
