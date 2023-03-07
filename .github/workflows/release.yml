@@ -37,19 +37,6 @@ jobs:
         with:
           version: latest
 
-      # increment release
-      - name: Latest release
-        id: prev-tag
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const resp = await github.rest.repos.getLatestRelease({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-            })
-            return resp.data.tag_name
-          result-encoding: string
-
       # increment repo version tag
       - run: npm install semver
       - name: Increment version

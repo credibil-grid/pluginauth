@@ -1,5 +1,5 @@
 
-default: lint test
+default: lint test yaegi
 
 .PHONY: lint
 lint:
