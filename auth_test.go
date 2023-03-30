@@ -35,9 +35,7 @@ func TestAuth(t *testing.T) {
 	cfg := CreateConfig()
 	cfg.Host = oryAPI.URL
 	cfg.Headers = map[string]string{
-		"User":        "TiccTech-User",
-		"Tenant":      "TiccTech-Tenant",
-		"Permissions": "Permissions",
+		"credibil-user": "credibil-user",
 	}
 
 	handler, err := New(ctx, next, cfg, "auth-plugin")
@@ -53,9 +51,7 @@ func TestAuth(t *testing.T) {
 
 	handler.ServeHTTP(rec, req)
 
-	assertHeader(t, req, "TiccTech-User", "9f425a8d-7efc-4768-8f23-7647a74fdf13")
-	assertHeader(t, req, "TiccTech-Tenant", "4248d7ff-ef45-43f6-8f07-10cff998aadf")
-	assertHeader(t, req, "Permissions", "read:users,write:users")
+	assertHeader(t, req, "credibil-user", "9f425a8d-7efc-4768-8f23-7647a74fdf13")
 }
 
 func assertHeader(t *testing.T, req *http.Request, key, expected string) {

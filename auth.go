@@ -81,12 +81,8 @@ func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	var session struct {
 		Identity struct {
-			Id             string `json:"id"`
-			Active         bool   `json:"active"`
-			MetadataPublic struct {
-				TenantId    string `json:"tenantId"`
-				Permissions string `json:"permissions"`
-			} `json:"metadata_public"`
+			Id     string `json:"id"`
+			Active bool   `json:"active"`
 		} `json:"identity"`
 	}
 
@@ -98,9 +94,7 @@ func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// set response headers
-	r.Header.Set(a.headers["User"], session.Identity.Id)
-	r.Header.Set(a.headers["Tenant"], session.Identity.MetadataPublic.TenantId)
-	r.Header.Set(a.headers["Permissions"], session.Identity.MetadataPublic.Permissions)
+	r.Header.Set(a.headers["credibil-user"], session.Identity.Id)
 
 	a.next.ServeHTTP(w, r)
 }
