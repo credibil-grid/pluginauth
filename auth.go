@@ -73,28 +73,28 @@ func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	end := time.Since(start).Milliseconds()
 	os.Stderr.WriteString(fmt.Sprintf("latency: %dms ", end))
 
-	if res.StatusCode != http.StatusOK {
-		os.Stderr.WriteString("status code: " + res.Status)
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
+	// If the response is 200, set a user ID header. If the response is not 200,
+	// the user is not authenticated. This is OK since some of our services are
+	// public.
+	if res.StatusCode == http.StatusOK {
 
-	var session struct {
-		Identity struct {
-			Id     string `json:"id"`
-			Active bool   `json:"active"`
-		} `json:"identity"`
-	}
+		var session struct {
+			Identity struct {
+				Id     string `json:"id"`
+				Active bool   `json:"active"`
+			} `json:"identity"`
+		}
 
-	defer res.Body.Close()
-	if err := json.NewDecoder(res.Body).Decode(&session); err != nil {
-		os.Stderr.WriteString(err.Error())
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+		defer res.Body.Close()
+		if err := json.NewDecoder(res.Body).Decode(&session); err != nil {
+			os.Stderr.WriteString(err.Error())
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
-	// set response headers
-	r.Header.Set(a.headers["credibil-user"], session.Identity.Id)
+		// set response headers
+		r.Header.Set(a.headers["credibil-user"], session.Identity.Id)
+	}
 
 	a.next.ServeHTTP(w, r)
 }
